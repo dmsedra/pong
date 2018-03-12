@@ -3,7 +3,9 @@ class Ball{
 		float pos[2];
 		float vel[2];
 	public:
-		Ball(float pos_in[2], float vel_in[2]);
+		Ball();
+		void setPos(float pos[2]);
+		void setVel(float vel[2]);
 		float (& getPos()) [2];
 		float (& getVel()) [2];
 };
@@ -13,15 +15,19 @@ class Paddle{
 		float pos[2];
 		float vel;
 	public:
-		Paddle(float pos_in[2], float vel_in);
+		Paddle();
+		void setPos(float pos[2]);
+		void setVel(float vel);
 		float (& getPos()) [2];
 		float& getVel();
 };
 
 class State{
-	private:
+	public:
 		Ball ball;
 		Paddle left, right;
-	public:
-		State(Ball a, Paddle b, Paddle c);
+		void reset();
+		void print();
+		State();
 };
+

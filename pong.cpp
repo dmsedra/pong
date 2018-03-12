@@ -8,23 +8,27 @@
 
 using namespace std;
 
-void renderScene(void) {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+void drawPaddle(float pos, float x_offset){
 	glBegin(GL_QUADS);
-	glColor3f(0.3f, 1.0f, 0.3f); //You can set RGB color for you vertex
-	
-	float x1 = -0.98f;
-	float y1 = 0.3f;
-	float x2 = -0.96f;
-	float y2 = -0.3f;
+	glColor3f(0.3f, 1.0f, 0.3f); 
+	float x1 = x_offset-PADDLE_WIDTH;
+	float y1 = pos+PADDLE_HEIGHT;
+	float x2 = x_offset+PADDLE_WIDTH;
+	float y2 = pos-PADDLE_HEIGHT;
 
+	cout << x1 << y1 << x2 << y2 << endl;
 	glVertex2f(x1, y1);
 	glVertex2f(x2, y1);
 	glVertex2f(x2, y2);
 	glVertex2f(x1, y2);
-
 	glEnd();
+}
+
+void renderScene(void) {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	drawPaddle(0.f,-0.97f);
+	drawPaddle(0.f,0.97f);
 
 	glutSwapBuffers();
 }

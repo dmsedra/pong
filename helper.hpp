@@ -1,5 +1,5 @@
-#define PADDLE_WIDTH 0.02f
-#define PADDLE_HEIGHT 0.6f 
+#define PADDLE_WIDTH 0.01f
+#define PADDLE_HEIGHT 0.3f 
 
 class Ball{
 	private:

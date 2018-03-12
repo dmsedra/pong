@@ -1,3 +1,6 @@
+#define PADDLE_WIDTH 0.02f
+#define PADDLE_HEIGHT 0.6f 
+
 class Ball{
 	private:
 		float pos[2];
@@ -12,13 +15,14 @@ class Ball{
 
 class Paddle{
 	private:
-		float pos[2];
+		float pos;
 		float vel;
+		float x_offset; //left or right paddle
 	public:
 		Paddle();
-		void setPos(float pos[2]);
+		void setPos(float pos, float x_offset);
 		void setVel(float vel);
-		float (& getPos()) [2];
+		float& getPos();
 		float& getVel();
 };
 

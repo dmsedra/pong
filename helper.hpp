@@ -47,6 +47,8 @@ class State{
 		State();
 };
 
+extern State state;
+
 void drawPaddle(Paddle paddle);
 
 void drawBall(Ball ball);
@@ -58,3 +60,7 @@ void updatePaddle(State state);
 void arrowFunc(int key, int x, int y);
 
 void quitFunc(unsigned char key, int x, int y);
+
+void renderScene(void);
+
+void update(int value);

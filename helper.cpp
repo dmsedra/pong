@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cmath>
 #include <GL/glut.h>
+#include <linux/input.h>
+#include <fstream>
 
 using namespace std;
 
@@ -19,12 +21,20 @@ void Ball::setVel(float vel_in[2]){
 	vel[1] = vel_in[1];
 }
 
+void Ball::setRad(float rad_in){
+	rad = rad_in;
+}
+
 float (&Ball::getPos()) [2]{
 	return pos;
 }
 
 float (&Ball::getVel()) [2]{
 	return vel;
+}
+
+float Ball::getRad(){
+	return rad;
 }
 
 Paddle::Paddle(){
@@ -57,7 +67,7 @@ State::State(){
 
 void State::reset(){
 	float posBall[2] = {0.,0.};
-	float velBall[2] = {0.,0.};
+	float velBall[2] = {0.01,0.};
 
 	ball.setPos(posBall);
 
@@ -65,6 +75,7 @@ void State::reset(){
 	right.setPos(0., 0.97f);
 
 	ball.setVel(velBall);
+	ball.setRad(BALL_RAD);
 	left.setVel(0.);
 	right.setVel(0.);
 }
@@ -100,9 +111,7 @@ void drawPaddle(Paddle paddle){
 	glEnd();
 }
 
-void drawBall(Ball ball)
-	//float cx, float cy, float rx, float ry, int num_segments) 
-{ 
+void drawBall(Ball ball){ 
 	float* pos = ball.getPos();
 	float cx = pos[0];
 	float cy = pos[1];
@@ -130,4 +139,59 @@ void drawBall(Ball ball)
 	    y = s * t + c * y;
 	} 
 	glEnd(); 
+}
+
+void updateBall(State state){
+	float* pos = state.ball.getPos();
+	float rad = state.ball.getRad();
+
+	//upper right counter clockwise
+	float ball_corners[4][2] = {{pos[0]+rad,pos[1]+rad}, {pos[0]-rad,pos[1]+rad}, {pos[0]-rad,pos[1]-rad}, {pos[0]+rad,pos[1]-rad}};
+
+	float left_upper[2] = {state.left.getOffset()+PADDLE_WIDTH, state.left.getPos()+PADDLE_HEIGHT}; 
+	float left_lower[2] = {state.left.getOffset()+PADDLE_WIDTH, state.left.getPos()-PADDLE_HEIGHT};
+
+	float right_upper[2] = {state.right.getOffset()-PADDLE_WIDTH, state.right.getPos()+PADDLE_HEIGHT}; 
+	float right_lower[2] = {state.right.getOffset()-PADDLE_WIDTH, state.right.getPos()-PADDLE_HEIGHT};
+
+	
+
+	//Hit right paddle
+	if((ball_corners[0][0] >= right_upper[0]) && (ball_corners[3][1] <= right_upper[1]) && (ball_corners[0][1] >= right_lower[1])){
+		float* vel = state.ball.getVel();
+		float new_vel[2] = {-vel[0], vel[1]};
+		state.ball.setVel(new_vel);
+	}
+
+	//TODO add more
+
+	float* vel = state.ball.getVel();
+	float new_pos[2] = {pos[0]+1.f*vel[0], pos[1]+1.f*vel[1]};
+	state.ball.setPos(new_pos); 
+}
+
+void updatePaddle(State state){
+	float pos = state.right.getPos();
+
+	
+	float new_pos = min(1.f, pos + state.right.getVel());
+	float offset = state.right.getOffset();
+	new_pos = max(-1.f, new_pos);
+	state.right.setPos(new_pos, offset);
+}
+
+void arrowFunc(int key, int x, int y){
+	switch(key){
+		case GLUT_KEY_UP:
+			cout << "UP" << endl;
+			break;
+		case GLUT_KEY_DOWN:
+			cout << "DOWN" << endl;
+			break;
+	}
+}
+
+void quitFunc(unsigned char key, int x, int y){
+	if(key == 'q')
+		exit(0);
 }

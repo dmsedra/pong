@@ -5,17 +5,23 @@
 #define WINDOW_HEIGHT 800
 #define ELLIPSE_SCALE WINDOW_WIDTH/WINDOW_HEIGHT
 #define SEGMENTS 70
+#define SQRT2 sqrt(2)
+#define VK_UP 0x26
+#define VK_DOWN 0x28
 
 class Ball{
 	private:
 		float pos[2];
 		float vel[2];
+		float rad;
 	public:
 		Ball();
 		void setPos(float pos[2]);
 		void setVel(float vel[2]);
+		void setRad(float rad);
 		float (& getPos()) [2];
 		float (& getVel()) [2];
+		float getRad();
 };
 
 class Paddle{
@@ -44,3 +50,11 @@ class State{
 void drawPaddle(Paddle paddle);
 
 void drawBall(Ball ball);
+
+void updateBall(State state);
+
+void updatePaddle(State state);
+
+void arrowFunc(int key, int x, int y);
+
+void quitFunc(unsigned char key, int x, int y);

@@ -17,6 +17,21 @@ void renderScene(void) {
 	glutSwapBuffers();
 }
 
+void update(int value) {
+	cout << "update" << endl;
+   // input handling
+   updateBall(state);
+
+   // update ball
+   updatePaddle(state);
+
+   // Call update() again in 'interval' milliseconds
+   glutTimerFunc(300, update, 0);
+
+   // Redisplay frame
+   glutPostRedisplay();
+}
+
 int main(int argc, char* argv[])
 {
 	glutInit(&argc, argv);
@@ -27,8 +42,10 @@ int main(int argc, char* argv[])
 
 	State state;
 	state.print();
-
+	glutKeyboardFunc(quitFunc);
+	glutSpecialFunc(arrowFunc);
 	glutDisplayFunc(renderScene);
+	glutTimerFunc(300, update, 0);
 
 	// enter GLUT event processing cycle
 	glutMainLoop();

@@ -69,7 +69,7 @@ State::State(){
 
 void State::reset(){
 	float posBall[2] = {0.,0.};
-	float velBall[2] = {0.01,0.};
+	float velBall[2] = {0.1,0.};
 
 	ball.setPos(posBall);
 
@@ -143,10 +143,12 @@ void drawBall(Ball ball){
 	glEnd(); 
 }
 
-void updateBall(State state){
+void updateBall(){
+	
 	float* pos = state.ball.getPos();
 	float rad = state.ball.getRad();
 
+	/*
 	//upper right counter clockwise
 	float ball_corners[4][2] = {{pos[0]+rad,pos[1]+rad}, {pos[0]-rad,pos[1]+rad}, {pos[0]-rad,pos[1]-rad}, {pos[0]+rad,pos[1]-rad}};
 
@@ -164,7 +166,7 @@ void updateBall(State state){
 		float new_vel[2] = {-vel[0], vel[1]};
 		state.ball.setVel(new_vel);
 	}
-
+	*/
 	//TODO add more
 
 	float* vel = state.ball.getVel();
@@ -172,23 +174,27 @@ void updateBall(State state){
 	state.ball.setPos(new_pos); 
 }
 
-void updatePaddle(State state){
+void updatePaddle(){
 	float pos = state.right.getPos();
-
+	//cout << "before: " << pos;
 	
 	float new_pos = min(1.f, pos + state.right.getVel());
 	float offset = state.right.getOffset();
 	new_pos = max(-1.f, new_pos);
 	state.right.setPos(new_pos, offset);
+	//cout << " after: " << new_pos << endl;
+	state.right.setVel(0.f);
 }
 
 void arrowFunc(int key, int x, int y){
 	switch(key){
 		case GLUT_KEY_UP:
-			cout << "UP" << endl;
+			//cout << "UP" << endl;
+			state.right.setVel(0.5f);
 			break;
 		case GLUT_KEY_DOWN:
-			cout << "DOWN" << endl;
+			//cout << "DOWN" << endl;
+			state.right.setVel(-0.5f);
 			break;
 	}
 }
@@ -199,7 +205,9 @@ void quitFunc(unsigned char key, int x, int y){
 }
 
 void renderScene(void) {
+	cout << "rendering" << endl;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	state.print();
 	drawPaddle(state.left);
 	drawPaddle(state.right);
 	drawBall(state.ball);
@@ -208,15 +216,8 @@ void renderScene(void) {
 
 void update(int value) {
 	cout << "update" << endl;
-   // input handling
-   updateBall(state);
-
-   // update ball
-   updatePaddle(state);
-
-   // Call update() again in 'interval' milliseconds
-   glutTimerFunc(300, update, 0);
-
-   // Redisplay frame
-   glutPostRedisplay();
+	updateBall();
+	updatePaddle();
+	glutTimerFunc(300, update, 0);
+	glutPostRedisplay();
 }

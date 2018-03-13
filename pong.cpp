@@ -7,6 +7,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+	//init
 	glutInit(&argc, argv);
 	glutInitWindowPosition(200, 0);
 	glutInitWindowSize(1200,800);
@@ -14,6 +15,8 @@ int main(int argc, char* argv[])
 	glutCreateWindow("Pong");
 
 	state.print();
+	
+	//set callbacks
 	glutKeyboardFunc(quitFunc);
 	glutSpecialFunc(arrowFunc);
 	glutDisplayFunc(renderScene);

@@ -1,3 +1,8 @@
+#ifndef HELPER_H
+#define HELPER_H
+
+#endif
+
 #define PADDLE_WIDTH 0.01f
 #define PADDLE_HEIGHT 0.3f 
 #define BALL_RAD 0.025

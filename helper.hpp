@@ -1,18 +1,12 @@
-#ifndef HELPER_H
-#define HELPER_H
-
-#endif
-
 #define PADDLE_WIDTH 0.01f
-#define PADDLE_HEIGHT 0.3f 
+#define PADDLE_HEIGHT 0.2f 
 #define BALL_RAD 0.025
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 800
 #define ELLIPSE_SCALE WINDOW_WIDTH/WINDOW_HEIGHT
 #define SEGMENTS 70
-#define SQRT2 sqrt(2)
-#define VK_UP 0x26
-#define VK_DOWN 0x28
+#define PADDLE_SPEED 0.035f
+#define LEFT_HANDICAP 0.25f //how much slower the AI can play
 
 class Ball{
 	private:
@@ -47,8 +41,12 @@ class State{
 	public:
 		Ball ball;
 		Paddle left, right;
+		short score[2];
 		void reset();
 		void print();
+		short (& getScore()) [2];
+		void pointLeft();
+		void pointRight();
 		State();
 };
 
@@ -58,9 +56,11 @@ void drawPaddle(Paddle paddle);
 
 void drawBall(Ball ball);
 
-void updateBall(State state);
+void updateBall();
 
-void updatePaddle(State state);
+void updateRightPaddle();
+
+void updateLeftPaddle();
 
 void arrowFunc(int key, int x, int y);
 

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <linux/input.h>
 #include <fstream>
 
@@ -64,12 +65,14 @@ float& Paddle::getVel(){
 }
 
 State::State(){
+	score[0] = 0;
+	score[1] = 0;
 	reset();
 }
 
 void State::reset(){
 	float posBall[2] = {0.,0.};
-	float velBall[2] = {0.1,0.};
+	float velBall[2] = {0.01,0.02};
 
 	ball.setPos(posBall);
 
@@ -80,6 +83,18 @@ void State::reset(){
 	ball.setRad(BALL_RAD);
 	left.setVel(0.);
 	right.setVel(0.);
+}
+
+short (&State::getScore()) [2]{
+	return score;
+}
+
+void State::pointLeft(){
+	score[0] += 1;
+}
+
+void State::pointRight(){
+	score[1] += 1;
 }
 
 void State::print(){
@@ -143,12 +158,23 @@ void drawBall(Ball ball){
 	glEnd(); 
 }
 
+void drawScore(){
+	glColor3f(1.0f, 0.7f, 0.7f); 
+	short* score = state.getScore();
+
+	cout << score[0] << score[1] <<  endl;
+	glRasterPos2f(0., 0.9f);
+	string text = to_string(score[0]) + ":" + to_string(score[1]);
+	cout << text << endl;
+  glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)text.c_str());
+}
+
 void updateBall(){
-	
 	float* pos = state.ball.getPos();
+	float* vel = state.ball.getVel();
 	float rad = state.ball.getRad();
 
-	/*
+	
 	//upper right counter clockwise
 	float ball_corners[4][2] = {{pos[0]+rad,pos[1]+rad}, {pos[0]-rad,pos[1]+rad}, {pos[0]-rad,pos[1]-rad}, {pos[0]+rad,pos[1]-rad}};
 
@@ -158,43 +184,79 @@ void updateBall(){
 	float right_upper[2] = {state.right.getOffset()-PADDLE_WIDTH, state.right.getPos()+PADDLE_HEIGHT}; 
 	float right_lower[2] = {state.right.getOffset()-PADDLE_WIDTH, state.right.getPos()-PADDLE_HEIGHT};
 
+	float new_vel[2] = {vel[0], vel[1]};
 	
 
 	//Hit right paddle
-	if((ball_corners[0][0] >= right_upper[0]) && (ball_corners[3][1] <= right_upper[1]) && (ball_corners[0][1] >= right_lower[1])){
-		float* vel = state.ball.getVel();
-		float new_vel[2] = {-vel[0], vel[1]};
-		state.ball.setVel(new_vel);
+	if((ball_corners[0][0] >= right_upper[0]) && (ball_corners[3][1] <= right_upper[1]) && (ball_corners[0][1] >= right_lower[1]))
+		new_vel[0] *= -1.f;
+	else if((ball_corners[1][0] <= left_upper[0]) && (ball_corners[2][1] <= left_upper[1]) && (ball_corners[1][1] >= left_lower[1]))
+		new_vel[0] *= -1.f;
+	else	if (ball_corners[0][0] >= 1.f){
+		state.pointLeft();
+		new_vel[0] *= -1.f;
 	}
-	*/
-	//TODO add more
+	else	if (ball_corners[1][0] <= -1.f){
+		state.pointRight();
+		new_vel[0] *= -1.f;
+	}
 
-	float* vel = state.ball.getVel();
+	if (ball_corners[0][1] >= 1.f)
+		new_vel[1] *= -1.f;
+	if (ball_corners[3][1] <= -1.f)
+		new_vel[1] *= -1.f;
+
+
+
+
+	state.ball.setVel(new_vel);
+
+	vel = state.ball.getVel();
 	float new_pos[2] = {pos[0]+1.f*vel[0], pos[1]+1.f*vel[1]};
 	state.ball.setPos(new_pos); 
 }
 
-void updatePaddle(){
+void updateRightPaddle(){
 	float pos = state.right.getPos();
-	//cout << "before: " << pos;
-	
-	float new_pos = min(1.f, pos + state.right.getVel());
 	float offset = state.right.getOffset();
-	new_pos = max(-1.f, new_pos);
+	float new_pos = max(-1.f+PADDLE_HEIGHT, min(1.f-PADDLE_HEIGHT, pos + PADDLE_SPEED*state.right.getVel()));
 	state.right.setPos(new_pos, offset);
-	//cout << " after: " << new_pos << endl;
-	state.right.setVel(0.f);
+	//state.right.setVel(0.f); //Allows continuous movement
+}
+
+void updateLeftPaddle(){
+	float* ball_pos = state.ball.getPos();
+	float* ball_vel = state.ball.getVel();
+	float paddle_pos = state.left.getPos();
+
+ 	float intercept = ball_pos[1] - ball_vel[1] * ((ball_pos[0]+1.f)/ball_vel[0]);
+
+ 	//going left
+	if(ball_vel[0] <= 0){
+		if(intercept > paddle_pos)
+			state.left.setVel(1.f);
+		else if(intercept < paddle_pos)
+			state.left.setVel(-1.f);
+		else
+			state.left.setVel(0.f);
+	}
+	else if (abs(paddle_pos)>PADDLE_SPEED)
+		state.left.setVel((paddle_pos>0)?-1.f:1.f);
+	else
+		state.left.setVel(0.f);
+
+	float offset = state.left.getOffset();
+	float new_pos = max(-1.f+PADDLE_HEIGHT, min(1.f-PADDLE_HEIGHT, paddle_pos + LEFT_HANDICAP*PADDLE_SPEED*state.left.getVel()));
+	state.left.setPos(new_pos, offset);
 }
 
 void arrowFunc(int key, int x, int y){
 	switch(key){
 		case GLUT_KEY_UP:
-			//cout << "UP" << endl;
-			state.right.setVel(0.5f);
+			state.right.setVel(1.f);
 			break;
 		case GLUT_KEY_DOWN:
-			//cout << "DOWN" << endl;
-			state.right.setVel(-0.5f);
+			state.right.setVel(-1.f);
 			break;
 	}
 }
@@ -205,19 +267,20 @@ void quitFunc(unsigned char key, int x, int y){
 }
 
 void renderScene(void) {
-	cout << "rendering" << endl;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	state.print();
+	//state.print();
+	drawScore();
 	drawPaddle(state.left);
 	drawPaddle(state.right);
 	drawBall(state.ball);
+	
 	glutSwapBuffers();
 }
 
 void update(int value) {
-	cout << "update" << endl;
 	updateBall();
-	updatePaddle();
-	glutTimerFunc(300, update, 0);
+	updateRightPaddle();
+	updateLeftPaddle();
+	glutTimerFunc(15, update, 0);
 	glutPostRedisplay();
 }

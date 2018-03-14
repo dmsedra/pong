@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 	glutCreateWindow("Pong");
 
 	state.print();
-	
+
 	//set callbacks
 	glutKeyboardFunc(quitFunc);
 	glutSpecialFunc(arrowFunc);

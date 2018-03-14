@@ -6,5 +6,8 @@ LIBS = $(OPENGL)
 pong: helper.cpp pong.cpp
 	$(CC) -o pong helper.cpp pong.cpp $(CFLAGS)
 
+deser:helper.cpp testDeserialize.cpp
+	$(CC) -o deser helper.cpp testDeserialize.cpp $(CFLAGS)
+
 clean: 
-	rm -f pong 
+	rm -f pong deser

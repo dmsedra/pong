@@ -14,8 +14,6 @@ int main(int argc, char* argv[])
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("Pong");
 
-	state.print();
-
 	//set callbacks
 	glutKeyboardFunc(quitFunc);
 	glutSpecialFunc(arrowFunc);

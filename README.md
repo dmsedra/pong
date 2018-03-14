@@ -1,5 +1,5 @@
 # Pong in C++
-Simple game of pong, implemented completely in C++ and Glut. The purpose of this project is twofold. 
+Simple game of pong implemented completely in C++ and Glut. The purpose of this project is twofold. 
 
 1. Learn C++ with a minimum of external libraries and packages. This means that only what is *absolutely required* is included.
 2. Implement some basic AI opponents against the human player. 

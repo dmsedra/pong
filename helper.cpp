@@ -5,10 +5,12 @@
 #include <GL/freeglut.h>
 #include <linux/input.h>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
 State state;
+vector<State> store;
 
 Ball::Ball(){
 
@@ -76,8 +78,8 @@ void State::reset(){
 
 	ball.setPos(posBall);
 
-	left.setPos(0.,-0.97f);
-	right.setPos(0., 0.97f);
+	left.setPos(0.,-0.99f);
+	right.setPos(0., 0.99f);
 
 	ball.setVel(velBall);
 	ball.setRad(BALL_RAD);
@@ -215,7 +217,7 @@ void updateBall(){
 void updateRightPaddle(){
 	float pos = state.right.getPos();
 	float offset = state.right.getOffset();
-	float new_pos = max(-1.f+PADDLE_HEIGHT, min(1.f-PADDLE_HEIGHT, pos + PADDLE_SPEED*state.right.getVel()));
+	float new_pos = max(-1.f+PADDLE_HEIGHT, min(1.f-PADDLE_HEIGHT, pos + state.paddle_speed*state.right.getVel()));
 	state.right.setPos(new_pos, offset);
 	//state.right.setVel(0.f); //Allows continuous movement
 }
@@ -236,13 +238,13 @@ void updateLeftPaddle(){
 		else
 			state.left.setVel(0.f);
 	}
-	else if (abs(paddle_pos)>PADDLE_SPEED)
+	else if (abs(paddle_pos)>state.paddle_speed)
 		state.left.setVel((paddle_pos>0)?-1.f:1.f);
 	else
 		state.left.setVel(0.f);
 
 	float offset = state.left.getOffset();
-	float new_pos = max(-1.f+PADDLE_HEIGHT, min(1.f-PADDLE_HEIGHT, paddle_pos + LEFT_HANDICAP*PADDLE_SPEED*state.left.getVel()));
+	float new_pos = max(-1.f+PADDLE_HEIGHT, min(1.f-PADDLE_HEIGHT, paddle_pos + state.ai_handicap*state.paddle_speed*state.left.getVel()));
 	state.left.setPos(new_pos, offset);
 }
 
@@ -258,8 +260,10 @@ void arrowFunc(int key, int x, int y){
 }
 
 void quitFunc(unsigned char key, int x, int y){
-	if(key == 'q')
+	if(key == 'q'){
+		serializeStore();
 		exit(0);
+	}
 }
 
 void renderScene(void) {
@@ -273,10 +277,47 @@ void renderScene(void) {
 	glutSwapBuffers();
 }
 
+void updateStore(int value){
+	if(value%STORE_RATE == 0){
+		State copy_state = state;
+		store.push_back(copy_state);
+	}
+}
+
+void serializeStore(){
+	ofstream file;
+	file.open("data/game1.bin" , ofstream::binary);
+	State buffer[store.size()];
+	copy(store.begin(), store.end(), buffer);
+	file.write((char*)buffer, store.size()*sizeof(State));
+	file.close();
+}
+
+vector<State> deserializeStore(string fname){
+	vector<State> res;
+	ifstream file;
+	file.open(fname, ifstream::binary);
+	char buffer[sizeof(State)];
+
+	file.read(buffer, sizeof(State));
+	while(file){
+		char tmp[sizeof(State)];
+		copy(begin(buffer), end(buffer), begin(tmp));
+
+		State* sptr = (State*)tmp;
+		res.push_back(*sptr);
+		file.read(buffer, sizeof(State));
+	}
+
+	file.close();
+	return res;
+}
+
 void update(int value) {
+	updateStore(value);
 	updateBall();
 	updateRightPaddle();
 	updateLeftPaddle();
-	glutTimerFunc(10, update, 0);
+	glutTimerFunc(10, update, value+1);
 	glutPostRedisplay();
 }

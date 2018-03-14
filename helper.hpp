@@ -5,8 +5,10 @@
 #define WINDOW_HEIGHT 800
 #define ELLIPSE_SCALE WINDOW_WIDTH/WINDOW_HEIGHT
 #define SEGMENTS 70
-#define PADDLE_SPEED 0.02f
-#define LEFT_HANDICAP 0.25f //how much slower the AI can play
+#define STORE_RATE 10 //capture state every 5 frames
+#include <vector>
+#include <string>
+using namespace std;
 
 class Ball{
 	private:
@@ -41,6 +43,9 @@ class State{
 	public:
 		Ball ball;
 		Paddle left, right;
+		float paddle_speed = 0.02f;
+		float ai_handicap = 0.25f;
+
 		short score[2];
 		void reset();
 		void print();
@@ -50,7 +55,6 @@ class State{
 		State();
 };
 
-extern State state;
 
 void drawPaddle(Paddle paddle);
 
@@ -69,3 +73,7 @@ void quitFunc(unsigned char key, int x, int y);
 void renderScene(void);
 
 void update(int value);
+
+void serializeStore();
+
+vector<State> deserializeStore(string fname);

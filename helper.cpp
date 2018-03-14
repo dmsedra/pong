@@ -143,17 +143,18 @@ void drawBall(Ball ball){
 	float x = 1;//we start at angle = 0 
 	float y = 0; 
 
-	glBegin(GL_LINE_LOOP); 
-	glColor3f(1.0f, 0.7f, 0.7f); 
+	glBegin(GL_LINES); 
+	glColor3f(1.0f, 1.0f, 1.0f); 
 	for(int ii = 0; ii < SEGMENTS; ii++) 
 	{ 
-	    //apply radius and offset
-	    glVertex2f(x * rx + cx, y * ry + cy);//output vertex 
+		//apply radius and offset
+		glVertex2f(pos[0], pos[1]);
+		glVertex2f(x * rx + cx, y * ry + cy);//output vertex 
 
-	    //apply the rotation matrix
-	    t = x;
-	    x = c * x - s * y;
-	    y = s * t + c * y;
+		//apply the rotation matrix
+		t = x;
+		x = c * x - s * y;
+		y = s * t + c * y;
 	} 
 	glEnd(); 
 }
@@ -162,10 +163,8 @@ void drawScore(){
 	glColor3f(1.0f, 0.7f, 0.7f); 
 	short* score = state.getScore();
 
-	cout << score[0] << score[1] <<  endl;
 	glRasterPos2f(0., 0.9f);
 	string text = to_string(score[0]) + ":" + to_string(score[1]);
-	cout << text << endl;
   glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)text.c_str());
 }
 
@@ -205,9 +204,6 @@ void updateBall(){
 		new_vel[1] *= -1.f;
 	if (ball_corners[3][1] <= -1.f)
 		new_vel[1] *= -1.f;
-
-
-
 
 	state.ball.setVel(new_vel);
 
@@ -281,6 +277,6 @@ void update(int value) {
 	updateBall();
 	updateRightPaddle();
 	updateLeftPaddle();
-	glutTimerFunc(15, update, 0);
+	glutTimerFunc(10, update, 0);
 	glutPostRedisplay();
 }

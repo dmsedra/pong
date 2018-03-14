@@ -1,11 +1,11 @@
 #define PADDLE_WIDTH 0.01f
 #define PADDLE_HEIGHT 0.2f 
-#define BALL_RAD 0.025
+#define BALL_RAD 0.012
 #define WINDOW_WIDTH 1200
 #define WINDOW_HEIGHT 800
 #define ELLIPSE_SCALE WINDOW_WIDTH/WINDOW_HEIGHT
 #define SEGMENTS 70
-#define PADDLE_SPEED 0.035f
+#define PADDLE_SPEED 0.02f
 #define LEFT_HANDICAP 0.25f //how much slower the AI can play
 
 class Ball{

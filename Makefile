@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-std=c++11 -lglut -lGL
+CFLAGS=-std=c++11 -lglut -lGL -g
 OPENGL = `pkg-config opengl --cflags --libs`
 LIBS = $(OPENGL)
 

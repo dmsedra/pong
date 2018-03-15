@@ -43,8 +43,9 @@ class State{
 	public:
 		Ball ball;
 		Paddle left, right;
-		float paddle_speed = 0.02f;
-		float ai_handicap = 0.25f;
+		float paddle_speed;
+		float ai_handicap;
+		string binary_file;
 
 		short score[2];
 		void reset();

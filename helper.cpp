@@ -6,6 +6,7 @@
 #include <linux/input.h>
 #include <fstream>
 #include <vector>
+#include <ctime>
 
 using namespace std;
 
@@ -67,14 +68,23 @@ float& Paddle::getVel(){
 }
 
 State::State(){
-	score[0] = 0;
-	score[1] = 0;
 	reset();
 }
 
 void State::reset(){
+	score[0] = 0;
+	score[1] = 0;
+	ai_handicap = 1.f;
+	paddle_speed = 0.02f;
+
 	float posBall[2] = {0.,0.};
-	float velBall[2] = {0.01,0.02};
+	srand (time(NULL));
+	float ball_dir = (rand()%365)*2.f*M_PI/365.f;
+
+	float x = cosf(ball_dir)*0.05f;
+	float y = sinf(ball_dir)*0.05f;
+
+	float velBall[2] = {x,y};
 
 	ball.setPos(posBall);
 
@@ -214,7 +224,7 @@ void updateBall(){
 	state.ball.setPos(new_pos); 
 }
 
-void updateRightPaddle(){
+void humanRight(){
 	float pos = state.right.getPos();
 	float offset = state.right.getOffset();
 	float new_pos = max(-1.f+PADDLE_HEIGHT, min(1.f-PADDLE_HEIGHT, pos + state.paddle_speed*state.right.getVel()));
@@ -222,7 +232,33 @@ void updateRightPaddle(){
 	//state.right.setVel(0.f); //Allows continuous movement
 }
 
-void updateLeftPaddle(){
+void perfectAIRight(){
+	float* ball_pos = state.ball.getPos();
+	float* ball_vel = state.ball.getVel();
+	float paddle_pos = state.right.getPos();
+
+ 	float intercept = ball_pos[1] + ball_vel[1] * ((ball_pos[0]+1.f)/ball_vel[0]);
+
+ 	//going right
+	if(ball_vel[0] >= 0){
+		if(intercept > paddle_pos)
+			state.right.setVel(1.f);
+		else if(intercept < paddle_pos)
+			state.right.setVel(-1.f);
+		else
+			state.right.setVel(0.f);
+	}
+	else if (abs(paddle_pos)>state.paddle_speed)
+		state.right.setVel((paddle_pos>0)?-1.f:1.f);
+	else
+		state.right.setVel(0.f);
+
+	float offset = state.right.getOffset();
+	float new_pos = max(-1.f+PADDLE_HEIGHT, min(1.f-PADDLE_HEIGHT, paddle_pos + state.ai_handicap*state.paddle_speed*state.right.getVel()));
+	state.right.setPos(new_pos, offset);
+}
+
+void perfectAILeft(){
 	float* ball_pos = state.ball.getPos();
 	float* ball_vel = state.ball.getVel();
 	float paddle_pos = state.left.getPos();
@@ -261,14 +297,12 @@ void arrowFunc(int key, int x, int y){
 
 void quitFunc(unsigned char key, int x, int y){
 	if(key == 'q'){
-		serializeStore();
 		exit(0);
 	}
 }
 
 void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//state.print();
 	drawScore();
 	drawPaddle(state.left);
 	drawPaddle(state.right);
@@ -286,7 +320,9 @@ void updateStore(int value){
 
 void serializeStore(){
 	ofstream file;
-	file.open("data/game1.bin" , ofstream::binary);
+	string fname = "data/" + to_string(rand()%1000000) + ".bin";
+	state.binary_file = fname;
+	file.open(fname , ofstream::binary);
 	State buffer[store.size()];
 	copy(store.begin(), store.end(), buffer);
 	file.write((char*)buffer, store.size()*sizeof(State));
@@ -314,10 +350,15 @@ vector<State> deserializeStore(string fname){
 }
 
 void update(int value) {
+	if (max(state.score[0],state.score[1]) == 3){
+		serializeStore();
+		state.reset();
+	}
+
 	updateStore(value);
 	updateBall();
-	updateRightPaddle();
-	updateLeftPaddle();
-	glutTimerFunc(10, update, value+1);
+	perfectAILeft();
+	perfectAIRight();
+	glutTimerFunc(10, update, value);
 	glutPostRedisplay();
 }

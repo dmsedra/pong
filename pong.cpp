@@ -16,12 +16,14 @@ int main(int argc, char* argv[])
 
 	//set callbacks
 	glutKeyboardFunc(quitFunc);
-	glutSpecialFunc(arrowFunc);
+	//glutSpecialFunc(arrowFunc);
 	glutDisplayFunc(renderScene);
-	glutTimerFunc(300, update, 0);
+	glutTimerFunc(10, update, 0);
 
 	// enter GLUT event processing cycle
 	glutMainLoop();
+
+	cout << "done" << endl;
 
   return 0;
 }

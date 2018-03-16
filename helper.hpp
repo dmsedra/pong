@@ -46,7 +46,7 @@ class State{
 		float paddle_speed;
 		float ai_handicap;
 		string binary_file;
-		vector<State> memory;
+		clock_t begin;
 		short score[2];
 		void reset();
 		void print();

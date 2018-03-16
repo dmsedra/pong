@@ -1,6 +1,7 @@
 #include "helper.hpp"
 #include <iostream>
 #include <cmath>
+#include <ctime>
 #include <GL/glut.h>
 #include <GL/freeglut.h>
 #include <linux/input.h>
@@ -75,9 +76,9 @@ void State::reset(){
 	cout << "reset" << endl;
 	score[0] = 0;
 	score[1] = 0;
-	ai_handicap = 1.f;
+	ai_handicap = 0.7f;
 	paddle_speed = 0.02f;
-
+	begin = clock();
 	float posBall[2] = {0.,0.};
 	srand (time(NULL));
 	float ball_dir = (rand()%365)*2.f*M_PI/365.f;
@@ -335,8 +336,6 @@ void serializeStore(){
 
 	state.reset();
 	store.clear();
-
-	//store.clear();
 }
 
 vector<State*> deserializeStore(string fname){
@@ -366,7 +365,12 @@ void update(int value) {
 		serializeStore();
 		glutLeaveMainLoop();
 	}
-
+	else if(double(clock()-state.begin)/CLOCKS_PER_SEC > 20){
+		cout << "time out" << endl;
+		state.reset();
+		store.clear();
+		glutLeaveMainLoop();
+	}
 	updateStore(value);
 	updateBall();
 	perfectAILeft();

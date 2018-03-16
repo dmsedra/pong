@@ -5,7 +5,7 @@
 #define WINDOW_HEIGHT 800
 #define ELLIPSE_SCALE WINDOW_WIDTH/WINDOW_HEIGHT
 #define SEGMENTS 70
-#define STORE_RATE 10 //capture state every 5 frames
+#define STORE_RATE 1 //capture state every 5 frames
 #include <vector>
 #include <string>
 using namespace std;
@@ -46,7 +46,7 @@ class State{
 		float paddle_speed;
 		float ai_handicap;
 		string binary_file;
-
+		vector<State> memory;
 		short score[2];
 		void reset();
 		void print();
@@ -77,4 +77,4 @@ void update(int value);
 
 void serializeStore();
 
-vector<State> deserializeStore(string fname);
+vector<State*> deserializeStore(string fname);

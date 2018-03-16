@@ -72,6 +72,7 @@ State::State(){
 }
 
 void State::reset(){
+	cout << "reset" << endl;
 	score[0] = 0;
 	score[1] = 0;
 	ai_handicap = 1.f;
@@ -319,29 +320,40 @@ void updateStore(int value){
 }
 
 void serializeStore(){
+
 	ofstream file;
 	string fname = "data/" + to_string(rand()%1000000) + ".bin";
 	state.binary_file = fname;
 	file.open(fname , ofstream::binary);
+	cout << store.size() << " beginning" << endl;
 	State buffer[store.size()];
+
 	copy(store.begin(), store.end(), buffer);
 	file.write((char*)buffer, store.size()*sizeof(State));
+	cout << "serializing " << store.size() << " " << sizeof(State) << buffer << endl;
 	file.close();
+
+	state.reset();
+	store.clear();
+
+	//store.clear();
 }
 
-vector<State> deserializeStore(string fname){
-	vector<State> res;
+vector<State*> deserializeStore(string fname){
+	vector<State*> res;
 	ifstream file;
 	file.open(fname, ifstream::binary);
+
+	if(!file.is_open()){cout << "bad file " << endl;return res;}
 	char buffer[sizeof(State)];
 
 	file.read(buffer, sizeof(State));
-	while(file){
-		char tmp[sizeof(State)];
-		copy(begin(buffer), end(buffer), begin(tmp));
 
-		State* sptr = (State*)tmp;
-		res.push_back(*sptr);
+	while(file){
+		char* s = new char[sizeof(State)];
+		copy(buffer, buffer+sizeof(State), s);
+		
+		res.push_back(((State*)s));
 		file.read(buffer, sizeof(State));
 	}
 
@@ -350,15 +362,15 @@ vector<State> deserializeStore(string fname){
 }
 
 void update(int value) {
-	if (max(state.score[0],state.score[1]) == 3){
+	if (max(state.score[0],state.score[1]) == 11){
 		serializeStore();
-		state.reset();
+		glutLeaveMainLoop();
 	}
 
 	updateStore(value);
 	updateBall();
 	perfectAILeft();
 	perfectAIRight();
-	glutTimerFunc(10, update, value);
+	glutTimerFunc(25, update, value);
 	glutPostRedisplay();
 }

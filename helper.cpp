@@ -32,11 +32,11 @@ void Ball::setRad(float rad_in){
 	rad = rad_in;
 }
 
-float (&Ball::getPos()) [2]{
+float* Ball::getPos(){
 	return pos;
 }
 
-float (&Ball::getVel()) [2]{
+float* Ball::getVel(){
 	return vel;
 }
 
@@ -56,15 +56,15 @@ void Paddle::setVel(float vel_in){
 	vel = vel_in;
 }
 
-float& Paddle::getPos(){
+float Paddle::getPos(){
 	return pos;
 }
 
-float& Paddle::getOffset(){
+float Paddle::getOffset(){
 	return x_offset;
 }
 
-float& Paddle::getVel(){
+float Paddle::getVel(){
 	return vel;
 }
 
@@ -73,7 +73,6 @@ State::State(){
 }
 
 void State::reset(){
-	cout << "reset" << endl;
 	score[0] = 0;
 	score[1] = 0;
 	ai_handicap = 0.7f;
@@ -99,8 +98,29 @@ void State::reset(){
 	right.setVel(0.);
 }
 
-short (&State::getScore()) [2]{
+void State::set(State* b){
+	this->setScore(b->getScore());
+	ai_handicap = b->ai_handicap;
+	paddle_speed = b->paddle_speed;
+	
+	ball.setPos(b->ball.getPos());
+	ball.setVel(b->ball.getVel());
+	ball.setRad(BALL_RAD);
+
+	left.setPos(b->left.getPos(),b->left.getOffset());
+	left.setVel(b->left.getVel());
+
+	right.setPos(b->right.getPos(),b->right.getOffset());	
+	right.setVel(b->right.getVel());
+}
+
+short* State::getScore(){
 	return score;
+}
+
+void State::setScore(short score_in[2]){
+	score[0] = score_in[0];
+	score[1] = score_in[1];
 }
 
 void State::pointLeft(){
@@ -375,6 +395,6 @@ void update(int value) {
 	updateBall();
 	perfectAILeft();
 	perfectAIRight();
-	glutTimerFunc(25, update, value);
+	glutTimerFunc(25, update, value+1);
 	glutPostRedisplay();
 }

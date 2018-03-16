@@ -1,4 +1,4 @@
 pong
-deser
-data
+play
+data/*.bin
 testDeserialize.cpp

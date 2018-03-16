@@ -20,8 +20,8 @@ class Ball{
 		void setPos(float pos[2]);
 		void setVel(float vel[2]);
 		void setRad(float rad);
-		float (& getPos()) [2];
-		float (& getVel()) [2];
+		float* getPos();
+		float* getVel();
 		float getRad();
 };
 
@@ -34,9 +34,9 @@ class Paddle{
 		Paddle();
 		void setPos(float pos, float x_offset);
 		void setVel(float vel);
-		float& getPos();
-		float& getOffset();
-		float& getVel();
+		float getPos();
+		float getOffset();
+		float getVel();
 };
 
 class State{
@@ -49,8 +49,10 @@ class State{
 		clock_t begin;
 		short score[2];
 		void reset();
+		void set(State* b);
 		void print();
-		short (& getScore()) [2];
+		short* getScore();
+		void setScore(short score_in[2]);
 		void pointLeft();
 		void pointRight();
 		State();

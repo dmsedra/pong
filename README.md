@@ -32,5 +32,14 @@ $./pong
 ## How to play
 Simply use up and down arrow keys on keyboard to control the right paddle. The left player is controlled by the AI, which is easily substituted. Currently the perfect solution is implemented where the paddle has access to the ball trajectory. In order to make thing more fair, a "handicap" is implemented for the AI (basically forcing it to play at a slower speed).
 
+## Playback stored game
+```
+$./play 122
+```
+
+will run 
+
+> data/122.bin.
+
 ## Notes
 Since C++ is platform dependent, the functionality may vary. As far as I know, I used standard Glut components which should make it operate across platforms. **I haven't tested this!**

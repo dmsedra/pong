@@ -263,9 +263,9 @@ void perfectAIRight(){
 
  	//going right
 	if(ball_vel[0] >= 0){
-		if(intercept > paddle_pos)
+		if(intercept > paddle_pos + state.paddle_speed)
 			state.right.setVel(1.f);
-		else if(intercept < paddle_pos)
+		else if(intercept < paddle_pos - state.paddle_speed)
 			state.right.setVel(-1.f);
 		else
 			state.right.setVel(0.f);
@@ -289,9 +289,9 @@ void perfectAILeft(){
 
  	//going left
 	if(ball_vel[0] <= 0){
-		if(intercept > paddle_pos)
+		if(intercept > paddle_pos + state.paddle_speed)
 			state.left.setVel(1.f);
-		else if(intercept < paddle_pos)
+		else if(intercept < paddle_pos - state.paddle_speed)
 			state.left.setVel(-1.f);
 		else
 			state.left.setVel(0.f);

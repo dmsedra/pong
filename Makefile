@@ -12,4 +12,4 @@ play: helper.cpp playback.cpp
 all: pong play
 
 clean: 
-	rm -f pong deser
+	rm -f pong play

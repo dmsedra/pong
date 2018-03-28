@@ -258,20 +258,17 @@ void perfectAIRight(){
 	float* ball_pos = state.ball.getPos();
 	float* ball_vel = state.ball.getVel();
 	float paddle_pos = state.right.getPos();
+	float intercept;
 
- 	float intercept = ball_pos[1] + ball_vel[1] * ((ball_pos[0]+1.f)/ball_vel[0]);
+	if(ball_vel[0] >= 0)
+ 		intercept = ball_pos[1] + ball_vel[1] * ((ball_pos[0]+1.f)/ball_vel[0]);
+ 	else
+ 		intercept = 0.f;
 
- 	//going right
-	if(ball_vel[0] >= 0){
-		if(intercept > paddle_pos + state.paddle_speed)
-			state.right.setVel(1.f);
-		else if(intercept < paddle_pos - state.paddle_speed)
-			state.right.setVel(-1.f);
-		else
-			state.right.setVel(0.f);
-	}
-	else if (abs(paddle_pos)>state.paddle_speed)
-		state.right.setVel((paddle_pos>0)?-1.f:1.f);
+	if(intercept > paddle_pos + state.paddle_speed)
+		state.right.setVel(1.f);
+	else if(intercept < paddle_pos - state.paddle_speed)
+		state.right.setVel(-1.f);
 	else
 		state.right.setVel(0.f);
 
@@ -284,22 +281,22 @@ void perfectAILeft(){
 	float* ball_pos = state.ball.getPos();
 	float* ball_vel = state.ball.getVel();
 	float paddle_pos = state.left.getPos();
+	float intercept;
 
- 	float intercept = ball_pos[1] - ball_vel[1] * ((ball_pos[0]+1.f)/ball_vel[0]);
+	if(ball_vel[0] < 0)
+ 		intercept = ball_pos[1] - ball_vel[1] * ((ball_pos[0]+1.f)/ball_vel[0]);
+ 	else
+ 		intercept = 0.f;
 
  	//going left
-	if(ball_vel[0] <= 0){
-		if(intercept > paddle_pos + state.paddle_speed)
-			state.left.setVel(1.f);
-		else if(intercept < paddle_pos - state.paddle_speed)
-			state.left.setVel(-1.f);
-		else
-			state.left.setVel(0.f);
-	}
-	else if (abs(paddle_pos)>state.paddle_speed)
-		state.left.setVel((paddle_pos>0)?-1.f:1.f);
+
+	if(intercept > paddle_pos + state.paddle_speed)
+		state.left.setVel(1.f);
+	else if(intercept < paddle_pos - state.paddle_speed)
+		state.left.setVel(-1.f);
 	else
 		state.left.setVel(0.f);
+
 
 	float offset = state.left.getOffset();
 	float new_pos = max(-1.f+PADDLE_HEIGHT, min(1.f-PADDLE_HEIGHT, paddle_pos + state.ai_handicap*state.paddle_speed*state.left.getVel()));
@@ -395,6 +392,6 @@ void update(int value) {
 	updateBall();
 	perfectAILeft();
 	perfectAIRight();
-	glutTimerFunc(25, update, value+1);
+	glutTimerFunc(20, update, value+1);
 	glutPostRedisplay();
 }

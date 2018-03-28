@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 		glutKeyboardFunc(quitFunc);
 		//glutSpecialFunc(arrowFunc);
 		glutDisplayFunc(renderScene);
-		glutTimerFunc(10, update, 0);
+		glutTimerFunc(20, update, 0);
 
 		// enter GLUT event processing cycle
 		glutMainLoop();

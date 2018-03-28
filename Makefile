@@ -9,6 +9,9 @@ pong: helper.cpp pong.cpp
 play: helper.cpp playback.cpp
 	$(CC) -o play helper.cpp playback.cpp $(CFLAGS)
 
+train: helper.cpp trainer.cpp trainer.hpp
+	$(CC) -o trainer helper.cpp trainer.cpp $(CFLAGS) 
+
 all: pong play
 
 clean: 

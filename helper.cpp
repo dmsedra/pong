@@ -288,8 +288,6 @@ void perfectAILeft(){
  	else
  		intercept = 0.f;
 
- 	//going left
-
 	if(intercept > paddle_pos + state.paddle_speed)
 		state.left.setVel(1.f);
 	else if(intercept < paddle_pos - state.paddle_speed)
@@ -338,7 +336,6 @@ void updateStore(int value){
 }
 
 void serializeStore(){
-
 	ofstream file;
 	string fname = "data/" + to_string(rand()%1000000) + ".bin";
 	state.binary_file = fname;

@@ -15,7 +15,7 @@ void playUpdate(int value){
 	else
 		exit(0);
 
-	glutTimerFunc(25, playUpdate, value+1);
+	glutTimerFunc(20, playUpdate, value+1);
 	glutPostRedisplay();
 }
 
@@ -36,7 +36,7 @@ int main(int argc, char**argv){
 	glutKeyboardFunc(quitFunc);
 	//glutSpecialFunc(arrowFunc);
 	glutDisplayFunc(renderScene);
-	glutTimerFunc(10, playUpdate, 0);
+	glutTimerFunc(20, playUpdate, 0);
 
 	// enter GLUT event processing cycle
 	glutMainLoop();

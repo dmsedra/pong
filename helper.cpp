@@ -1,4 +1,6 @@
-#include "helper.hpp"
+//#include "helper.hpp"
+#include "trainer.hpp"
+
 #include <iostream>
 #include <cmath>
 #include <ctime>
@@ -9,8 +11,10 @@
 #include <vector>
 #include <ctime>
 
+
 using namespace std;
 
+Policy lookForward;
 State state;
 vector<State> store;
 
@@ -202,7 +206,7 @@ void drawScore(){
   glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)text.c_str());
 }
 
-void updateBall(){
+void updateBall(State& state){
 	float* pos = state.ball.getPos();
 	float* vel = state.ball.getVel();
 	float rad = state.ball.getRad();
@@ -246,7 +250,7 @@ void updateBall(){
 	state.ball.setPos(new_pos); 
 }
 
-void humanRight(){
+void humanRight(State& state){
 	float pos = state.right.getPos();
 	float offset = state.right.getOffset();
 	float new_pos = max(-1.f+PADDLE_HEIGHT, min(1.f-PADDLE_HEIGHT, pos + state.paddle_speed*state.right.getVel()));
@@ -254,7 +258,7 @@ void humanRight(){
 	//state.right.setVel(0.f); //Allows continuous movement
 }
 
-void perfectAIRight(){
+void perfectAIRight(State& state){
 	float* ball_pos = state.ball.getPos();
 	float* ball_vel = state.ball.getVel();
 	float paddle_pos = state.right.getPos();
@@ -277,7 +281,7 @@ void perfectAIRight(){
 	state.right.setPos(new_pos, offset);
 }
 
-void perfectAILeft(){
+void perfectAILeft(State& state){
 	float* ball_pos = state.ball.getPos();
 	float* ball_vel = state.ball.getVel();
 	float paddle_pos = state.left.getPos();
@@ -386,9 +390,15 @@ void update(int value) {
 		glutLeaveMainLoop();
 	}
 	updateStore(value);
-	updateBall();
-	perfectAILeft();
-	perfectAIRight();
+
+	State new_state = state;
+	updateBall(new_state);
+	perfectAILeft(new_state);
+	//perfectAIRight(new_state);
+	lookForward.computeBestAction(new_state);
+	humanRight(new_state);
+	state = new_state;
+
 	glutTimerFunc(20, update, value+1);
 	glutPostRedisplay();
 }

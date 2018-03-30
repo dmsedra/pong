@@ -1,3 +1,6 @@
+#ifndef HELPER_H
+#define HELPER_H
+
 #define PADDLE_WIDTH 0.01f
 #define PADDLE_HEIGHT 0.2f 
 #define BALL_RAD 0.012
@@ -8,6 +11,7 @@
 #define STORE_RATE 1 //capture state every 5 frames
 #include <vector>
 #include <string>
+
 using namespace std;
 
 class Ball{
@@ -63,11 +67,17 @@ void drawPaddle(Paddle paddle);
 
 void drawBall(Ball ball);
 
-void updateBall();
+void updateBall(State& state);
 
-void updateRightPaddle();
+void humanRight(State& state);
 
-void updateLeftPaddle();
+void updateRightPaddle(State& state);
+
+void updateLeftPaddle(State& state);
+
+void perfectAILeft(State& state);
+
+void perfectAIRight(State& state);
 
 void arrowFunc(int key, int x, int y);
 
@@ -80,3 +90,5 @@ void update(int value);
 void serializeStore();
 
 vector<State*> deserializeStore(string fname);
+
+#endif

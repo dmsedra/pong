@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include "trainer.hpp"
+#include <algorithm>
 
 using namespace std;
 
@@ -16,28 +17,115 @@ using namespace std;
 		Output:
 			- paddle velocity {-1, 1}
 */
-void quantize(short out[6], float ball_vel[2], float ball_pos[2], float paddle_pos, short score)
-{
-	out[0] = int(ball_vel[0]*100);
-	out[1] = int(ball_vel[1]*100);
-	out[2] = int(ball_pos[0]*5);
-	out[3] = int(ball_pos[1]*5);
-	out[4] = int(paddle_pos*5);
-	out[5] = score;
+
+// s1+a = s2
+void Policy::updateState(State& s1, State& s2, short action){
+	s2.set(&s1);
+	s2.right.setVel(action);
+
+	updateBall(s2);
+	perfectAILeft(s2);
+	humanRight(s2);
 }
 
-void Policy::train(vector<State*> states){
-	short quant[6];
+//updateState holding the action steady for n steps
+void Policy::updateN(State& s1, State& s2, short action, short n){
+	updateState(s1,s2,action);
+
+	for(short i = 0; i < n-1; i++)
+		updateState(s2, s2, action);
+}
+
+float Policy::computeReward(State s1, short action){
+	State next_state;
+	short score;
+	updateState(s1, next_state, action);
+
+	score = (next_state.score[1]-s1.score[1]) - (next_state.score[1]-s1.score[0]);
+	//cout << score << endl;
+	return score;
+}
+
+void quantize(short out[5], State s)
+{
+	short quant[5];
 	short prev_score[2] = {0,0};
 
-	for(State* s : states){
-		//s->print();
-		short score = (s->score[1]-prev_score[1]) - (s->score[0]-prev_score[0]);
-		quantize(quant, s->ball.getVel(), s->ball.getPos(), s->left.getPos(), score);
-		cout << quant[5] << endl;
-		prev_score[0] = s->score[0];
-		prev_score[1] = s->score[1];
+	float ball_vel[2];
+	ball_vel[0] = s.ball.getVel()[0];
+	ball_vel[1] = s.ball.getVel()[1];
+
+	float ball_pos[2];
+	ball_pos[0] = s.ball.getPos()[0];
+	ball_pos[1] = s.ball.getPos()[1];
+
+	float paddle_pos;
+	paddle_pos = s.right.getPos();
+	
+
+	out[0] = int(ball_vel[0]*40);
+	out[1] = int(ball_vel[1]*40);
+	out[2] = int(ball_pos[0]*2);
+	out[3] = int(ball_pos[1]*2);
+	out[4] = int(paddle_pos*2);
+}
+
+float Policy::computeValue(State state, short depth)
+{
+
+	float reward[3] = {computeReward(state,-1.), computeReward(state,0.), computeReward(state,1.)};
+	float value[3] = {0.};
+	int n = 10;
+	if(depth <= 0)
+		return *max_element(reward, reward+3);
+
+	float max_val = -1.;
+
+	for(auto i = 0; i < 3; i++){
+		State s2;
+		updateN(state, s2, float(i-1.), n); //convert 0,3 to -1,1
+		value[i] = reward[i] + GAMMA*computeValue(s2,depth-n);
+		max_val = max(max_val, value[i]);
 	}
+
+	return max_val;
+}
+
+float Policy::computeBestAction(State& state){
+	float max_val = -1;
+	float max_act = -100;
+
+	for(short a = 0; a < 3; a++){
+		cout << "action " << a-1 << endl;
+		float reward = 0;
+		float gam = GAMMA;
+
+		State s2;
+		updateState(state, s2, a-1);
+		for(short j = 0; j < 10000; j+=40){
+			updateState(s2,s2,a-1);
+			reward += gam*computeReward(s2,a-1);
+			gam *= GAMMA;
+		}
+
+		if(reward > max_val){
+			max_val = reward;
+			max_act = a-1;
+		}
+	}
+
+	state.right.setVel(max_act);
+
+	return max_act;
+}
+
+void Policy::train(){
+	State start;
+	start.reset();
+
+	cout << computeBestAction(start) << endl; 
+
+
 }
 
 float Policy::action(State state){
@@ -53,14 +141,12 @@ void Policy::save(){
 	file.close();
 }
 
+/*
 int main(int argc, char** argv){
-	if(argc < 2) {cout << "requires game file " << endl; return 0;}
-
-	string fname = argv[1];
-	vector<State*> res = deserializeStore("data/" + fname + ".bin");
 	Policy policy;
-	policy.train(res);
+	policy.train();
 	policy.save();
 
 	return 0;
 }
+*/

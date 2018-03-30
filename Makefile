@@ -12,7 +12,7 @@ play: helper.cpp playback.cpp
 train: helper.cpp trainer.cpp trainer.hpp
 	$(CC) -o trainer helper.cpp trainer.cpp $(CFLAGS) 
 
-all: pong play
+all: pong play train
 
 clean: 
-	rm -f pong play
+	rm -f pong play train

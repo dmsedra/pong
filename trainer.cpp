@@ -94,26 +94,30 @@ float Policy::computeValue(State state, short depth)
 float Policy::computeBestAction(State& state){
 	float max_val = -1;
 	float max_act = -100;
+	float values[3] = {0.};
 
 	for(short a = 0; a < 3; a++){
-		cout << "action " << a-1 << endl;
 		float reward = 0;
 		float gam = GAMMA;
 
 		State s2;
 		updateState(state, s2, a-1);
-		for(short j = 0; j < 10000; j+=40){
+		for(short j = 0; j < 50; j+=1){
 			updateState(s2,s2,a-1);
 			reward += gam*computeReward(s2,a-1);
 			gam *= GAMMA;
 		}
-
+		values[a] = reward;
 		if(reward > max_val){
 			max_val = reward;
 			max_act = a-1;
 		}
 	}
 
+	if(values[0] == values[1] || values[1] == values[2])
+		max_act = 0.;
+
+	cout << max_act << endl;
 	state.right.setVel(max_act);
 
 	return max_act;

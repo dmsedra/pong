@@ -332,11 +332,9 @@ void renderScene(void) {
 	glutSwapBuffers();
 }
 
-void updateStore(int value){
-	if(value%STORE_RATE == 0){
-		State copy_state = state;
-		store.push_back(copy_state);
-	}
+void updateStore(){
+	State copy_state = state;
+	store.push_back(copy_state);
 }
 
 void serializeStore(){
@@ -389,16 +387,25 @@ void update(int value) {
 		store.clear();
 		glutLeaveMainLoop();
 	}
-	updateStore(value);
+
+	updateStore();
 
 	State new_state = state;
+
 	updateBall(new_state);
 	perfectAILeft(new_state);
-	//perfectAIRight(new_state);
-	lookForward.computeBestAction(new_state);
-	humanRight(new_state);
+
+	if(value == 0)
+		humanRight(new_state);
+	else if(value == 1)
+		perfectAIRight(new_state);
+	else if(value == 2){
+		lookForward.computeBestAction(new_state);
+		humanRight(new_state);
+	}
+
 	state = new_state;
 
-	glutTimerFunc(20, update, value+1);
+	glutTimerFunc(20, update, value);
 	glutPostRedisplay();
 }
